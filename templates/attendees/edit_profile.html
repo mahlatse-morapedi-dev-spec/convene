@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Your profile — {{ event.name }}{% endblock %}
+{% block content %}
+<div class="hero">
+  <h1>Your profile</h1>
+  <p class="dateline">This is what other attendees see in the directory.</p>
+</div>
+<form method="post" class="panel">
+  {% csrf_token %}
+  {% for field in form %}
+    <div class="field">
+      {{ field.label_tag }}{{ field }}
+      {% if field.help_text %}<span class="helptext">{{ field.help_text }}</span>{% endif %}
+      {{ field.errors }}
+    </div>
+  {% endfor %}
+  <button class="btn">Save profile</button>
+</form>
+{% endblock %}

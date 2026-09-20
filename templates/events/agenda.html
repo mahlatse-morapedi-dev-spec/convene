@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Agenda — {{ event.name }}{% endblock %}
+{% block content %}
+<div class="hero">
+  <h1>Agenda</h1>
+  <p class="dateline">{{ event.starts_on|date:"j F" }}–{{ event.ends_on|date:"j F Y" }}</p>
+</div>
+
+<form method="get" class="panel" style="display:flex;gap:1rem;flex-wrap:wrap;align-items:flex-end">
+  <div style="flex:1 1 14rem">
+    <label for="q">Search sessions</label>
+    <input type="text" id="q" name="q" value="{{ query }}" placeholder="Title keyword">
+  </div>
+  <div style="flex:0 1 14rem">
+    <label for="track">Track</label>
+    <select name="track" id="track">
+      <option value="">All tracks</option>
+      {% for t in tracks %}
+        <option value="{{ t.pk }}" {% if active_track == t.pk|stringformat:"s" %}selected{% endif %}>{{ t.name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <button class="btn">Apply</button>
+  {% if query or active_track %}<a class="btn ghost" href="{% url 'agenda' event.slug %}">Clear</a>{% endif %}
+</form>
+
+{% for day, sessions in days %}
+  <h2 class="daymark">{{ day|date:"l j F" }}</h2>
+  {% for s in sessions %}
+    <div class="slot">
+      <div class="time">{{ s.starts_at|time:"H:i" }}–{{ s.ends_at|time:"H:i" }}</div>
+      <div>
+        <h3><a href="{{ s.get_absolute_url }}">{{ s.title }}</a></h3>
+        <p class="meta">
+          {% if s.room %}{{ s.room }}{% endif %}
+          {% if s.track %} · <span style="color:{{ s.track.colour }}">{{ s.track.name }}</span>{% endif %}
+          {% if s.speakers.all %} · {% for sp in s.speakers.all %}{{ sp.full_name }}{% if not forloop.last %}, {% endif %}{% endfor %}{% endif %}
+        </p>
+        {% if s.is_on_now %}<span class="tag live">On now</span>{% endif %}
+      </div>
+      <div class="save">
+        {% if registration %}
+          <form method="post" action="{% url 'toggle_bookmark' event.slug s.pk %}">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+            <button class="btn small {% if s.pk in bookmarked %}{% else %}ghost{% endif %}">
+              {% if s.pk in bookmarked %}Saved{% else %}Save{% endif %}
+            </button>
+          </form>
+        {% endif %}
+      </div>
+    </div>
+  {% endfor %}
+{% empty %}
+  <p class="empty">No sessions match. Try clearing the filters.</p>
+{% endfor %}
+{% endblock %}

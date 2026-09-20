@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block title %}{{ session.title }} — {{ event.name }}{% endblock %}
+{% block content %}
+<div class="hero">
+  <p class="dateline">{{ session.starts_at|date:"l j F, H:i" }}–{{ session.ends_at|time:"H:i" }}{% if session.room %} · {{ session.room }}{% endif %}{% if session.track %} · {{ session.track.name }}{% endif %}</p>
+  <h1>{{ session.title }}</h1>
+  {% if session.is_on_now %}<span class="tag live">On now</span>{% endif %}
+  {% if average_rating %}<span class="tag plain">{{ average_rating|floatformat:1 }} / 5 rated</span>{% endif %}
+  {% if registration %}
+    <form method="post" action="{% url 'toggle_bookmark' event.slug session.pk %}" style="margin-top:1rem">
+      {% csrf_token %}
+      <button class="btn {% if not is_bookmarked %}ghost{% endif %}">{% if is_bookmarked %}Remove from my schedule{% else %}Add to my schedule{% endif %}</button>
+    </form>
+  {% endif %}
+</div>
+
+<div class="split">
+  <div>
+    <p>{{ session.abstract|linebreaksbr }}</p>
+
+    {% if session.stream_url or session.recording_url or session.slides_url %}
+      <p>
+        {% if session.stream_url %}<a class="btn small" href="{{ session.stream_url }}">Join the stream</a>{% endif %}
+        {% if session.recording_url %}<a class="btn small ghost" href="{{ session.recording_url }}">Watch the recording</a>{% endif %}
+        {% if session.slides_url %}<a class="btn small ghost" href="{{ session.slides_url }}">Slides</a>{% endif %}
+      </p>
+    {% endif %}
+
+    {% if polls %}
+    <h2 id="polls">Polls</h2>
+    {% for poll in polls %}
+      <div class="panel">
+        <h3>{{ poll.question }}</h3>
+        {% if registration and poll.is_open and poll.pk not in my_poll_votes %}
+          <form method="post" action="{% url 'vote_poll' event.slug poll.pk %}">
+            {% csrf_token %}
+            <ul class="choices">
+              {% for o in poll.options.all %}
+                <li><label><input type="radio" name="option" value="{{ o.pk }}" required> {{ o.text }}</label></li>
+              {% endfor %}
+            </ul>
+            <button class="btn small">Vote</button>
+          </form>
+        {% else %}
+          {% for o in poll.options.all %}
+            <p class="meta" style="margin-bottom:.15rem">{{ o.text }} — {{ o.share }}% ({{ o.vote_count }})</p>
+            <div class="bar-track" style="margin-bottom:.6rem"><div class="bar-fill" style="width:{{ o.share }}%"></div></div>
+          {% endfor %}
+          <p class="meta">{{ poll.total_votes }} vote{{ poll.total_votes|pluralize }}{% if not poll.is_open %} · closed{% endif %}</p>
+        {% endif %}
+      </div>
+    {% endfor %}
+    {% endif %}
+
+    <h2 id="qa">Questions</h2>
+    {% if registration and session.qa_enabled %}
+      <form method="post" action="{% url 'ask_question' event.slug session.pk %}" class="panel">
+        {% csrf_token %}
+        {{ question_form.as_p }}
+        <button class="btn">Post question</button>
+      </form>
+    {% elif not registration %}
+      <p class="empty">Register for this event to ask a question.</p>
+    {% endif %}
+
+    <ul class="thread" style="padding:0">
+      {% for q in questions %}
+        <li>
+          <div class="qa-item">
+            <div class="qa-votes">
+              {% if registration %}
+                <form method="post" action="{% url 'upvote_question' event.slug q.pk %}">
+                  {% csrf_token %}
+                  <button class="btn small {% if q.pk not in my_upvotes %}ghost{% endif %}" aria-label="Upvote">▲</button>
+                </form>
+              {% endif %}
+              <span class="n">{{ q.votes }}</span>
+            </div>
+            <div>
+              <p class="who">{{ q.display_name }} · {{ q.created_at|timesince }} ago {% if q.is_answered %}<span class="tag plain">Answered</span>{% endif %}</p>
+              <p>{{ q.body|linebreaksbr }}</p>
+            </div>
+          </div>
+        </li>
+      {% empty %}
+        <li><p class="meta">No questions yet.</p></li>
+      {% endfor %}
+    </ul>
+
+    {% if registration and session.has_ended %}
+      <h2 id="feedback">Feedback</h2>
+      <form method="post" action="{% url 'leave_feedback' event.slug session.pk %}" class="panel">
+        {% csrf_token %}
+        {{ feedback_form.as_p }}
+        <button class="btn">{% if my_feedback %}Update feedback{% else %}Send feedback{% endif %}</button>
+      </form>
+    {% endif %}
+  </div>
+
+  <aside>
+    {% if session.speakers.all %}
+    <div class="panel">
+      <h2 style="font-size:1.15rem">Speakers</h2>
+      {% for sp in session.speakers.all %}
+        <p style="margin-bottom:.5rem">
+          <a href="{% url 'speaker_detail' event.slug sp.pk %}">{{ sp.full_name }}</a><br>
+          <span class="meta">{{ sp.byline }}</span>
+        </p>
+      {% endfor %}
+    </div>
+    {% endif %}
+    <div class="panel">
+      <h2 style="font-size:1.15rem">Details</h2>
+      <p class="meta">{{ session.get_kind_display }}{% if session.capacity %} · seats {{ session.capacity }}{% endif %}</p>
+      <p><a href="{% url 'agenda' event.slug %}">Back to the agenda</a></p>
+    </div>
+  </aside>
+</div>
+{% endblock %}

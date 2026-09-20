@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Events — Convene{% endblock %}
+{% block content %}
+<div class="hero">
+  <h1>What's on</h1>
+  <p class="dateline">Published events you can register for.</p>
+</div>
+
+{% if events %}
+<div class="grid">
+  {% for e in events %}
+  <article class="panel">
+    <h2 style="font-size:1.25rem"><a href="{{ e.get_absolute_url }}">{{ e.name }}</a></h2>
+    <p class="meta">{{ e.starts_on|date:"j M" }}–{{ e.ends_on|date:"j M Y" }} · {{ e.city|default:"Online" }}</p>
+    <p>{{ e.tagline }}</p>
+    {% if e.is_live %}<span class="tag live">On now</span>{% endif %}
+  </article>
+  {% endfor %}
+</div>
+{% else %}
+<p class="empty">No events are published yet. Add one in the admin and tick “is published”.</p>
+{% endif %}
+{% endblock %}

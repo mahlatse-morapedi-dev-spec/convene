@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Your ticket — {{ event.name }}{% endblock %}
+{% block content %}
+<div class="hero"><h1>Your ticket</h1></div>
+<div class="badge-card">
+  <p class="meta" style="margin:0">{{ event.name }}</p>
+  <h2 style="margin:.4rem 0">{{ registration.full_name }}</h2>
+  <p class="meta">{{ registration.organization }}</p>
+  <span class="code">{{ registration.badge_code }}</span>
+  <p class="meta">{{ registration.ticket_type.name }} · {{ registration.get_status_display }}</p>
+  {% if registration.is_checked_in %}<span class="tag">Checked in {{ registration.checked_in_at|date:"j M H:i" }}</span>{% endif %}
+</div>
+<p style="margin-top:1.5rem">
+  <a class="btn ghost" href="{% url 'edit_profile' event.slug %}">Edit your profile</a>
+  <a class="btn ghost" href="{% url 'my_schedule' event.slug %}">My schedule</a>
+</p>
+{% endblock %}

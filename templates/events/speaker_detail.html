@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}{{ speaker.full_name }} — {{ event.name }}{% endblock %}
+{% block content %}
+<div class="hero">
+  <h1>{{ speaker.full_name }}</h1>
+  <p class="dateline">{{ speaker.byline }}</p>
+</div>
+<div class="split">
+  <div><p>{{ speaker.bio|linebreaksbr|default:"No biography supplied." }}</p></div>
+  <aside class="panel">
+    <h2 style="font-size:1.15rem">Sessions</h2>
+    {% for s in speaker.sessions.all %}
+      <p style="margin-bottom:.5rem">
+        <a href="{{ s.get_absolute_url }}">{{ s.title }}</a><br>
+        <span class="meta">{{ s.starts_at|date:"D j M, H:i" }}</span>
+      </p>
+    {% empty %}<p class="meta">Not scheduled yet.</p>{% endfor %}
+  </aside>
+</div>
+{% endblock %}

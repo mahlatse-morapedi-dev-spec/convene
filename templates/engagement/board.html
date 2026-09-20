@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Community — {{ event.name }}{% endblock %}
+{% block content %}
+<div class="hero">
+  <h1>Community board</h1>
+  <p class="dateline">Discussion, meet-ups and lift-sharing between attendees.</p>
+  {% if registration %}<a class="btn" href="{% url 'new_topic' event.slug %}">Start a thread</a>{% endif %}
+</div>
+
+<p>
+  <a class="tag plain" href="{% url 'board' event.slug %}">All</a>
+  {% for value, label in kinds %}
+    <a class="tag {% if active_kind == value %}{% else %}plain{% endif %}" href="?kind={{ value }}">{{ label }}</a>
+  {% endfor %}
+</p>
+
+<ul class="thread" style="padding:0">
+  {% for t in topics %}
+    <li>
+      <h3 style="margin-bottom:.15rem"><a href="{% url 'topic_detail' event.slug t.pk %}">{{ t.title }}</a></h3>
+      <p class="meta">{{ t.get_kind_display }} · started by {{ t.created_by.full_name }} · {{ t.replies }} post{{ t.replies|pluralize }} · {{ t.created_at|timesince }} ago</p>
+    </li>
+  {% empty %}
+    <li><p class="empty">No threads yet. {% if registration %}Start the first one.{% endif %}</p></li>
+  {% endfor %}
+</ul>
+{% endblock %}

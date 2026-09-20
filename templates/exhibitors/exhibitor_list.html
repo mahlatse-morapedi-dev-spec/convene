@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Exhibitors — {{ event.name }}{% endblock %}
+{% block content %}
+<div class="hero"><h1>Exhibitors and sponsors</h1></div>
+
+{% if sponsors %}
+<h2>Sponsors</h2>
+<div class="grid">
+  {% for e in sponsors %}
+    <article class="person">
+      <h3><a href="{{ e.get_absolute_url }}">{{ e.name }}</a></h3>
+      <p class="meta">{{ e.get_tier_display }}{% if e.booth_number %} · stand {{ e.booth_number }}{% endif %}</p>
+      <p>{{ e.blurb }}</p>
+    </article>
+  {% endfor %}
+</div>
+{% endif %}
+
+<h2 style="margin-top:2rem">Stands</h2>
+<div class="grid">
+  {% for e in stands %}
+    <article class="person">
+      <h3><a href="{{ e.get_absolute_url }}">{{ e.name }}</a></h3>
+      <p class="meta">{% if e.booth_number %}Stand {{ e.booth_number }}{% endif %}</p>
+      <p>{{ e.blurb }}</p>
+    </article>
+  {% empty %}
+    <p class="empty">No stands listed yet.</p>
+  {% endfor %}
+</div>
+{% endblock %}

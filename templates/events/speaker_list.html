@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Speakers — {{ event.name }}{% endblock %}
+{% block content %}
+<div class="hero"><h1>Speakers</h1></div>
+<div class="grid">
+  {% for sp in speakers %}
+    <article class="person">
+      <h3><a href="{% url 'speaker_detail' event.slug sp.pk %}">{{ sp.full_name }}</a></h3>
+      <p class="meta">{{ sp.byline }}</p>
+      <p class="meta">{{ sp.sessions.count }} session{{ sp.sessions.count|pluralize }}</p>
+    </article>
+  {% empty %}
+    <p class="empty">No speakers listed yet.</p>
+  {% endfor %}
+</div>
+{% endblock %}

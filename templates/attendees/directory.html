@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}People — {{ event.name }}{% endblock %}
+{% block content %}
+<div class="hero">
+  <h1>People</h1>
+  <p class="dateline">Everyone who chose to be listed.</p>
+</div>
+
+{% if suggested %}
+<div class="panel">
+  <h2 style="font-size:1.15rem">You might want to meet</h2>
+  <div class="grid">
+    {% for person, shared in suggested %}
+      <div>
+        <h3 style="font-size:1rem"><a href="{% url 'attendee_detail' event.slug person.pk %}">{{ person.full_name }}</a></h3>
+        <p class="meta">{{ person.job_title }}{% if person.organization %}, {{ person.organization }}{% endif %}</p>
+        <p class="meta">Both interested in {{ shared|join:", " }}</p>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<form method="get" class="panel" style="display:flex;gap:1rem;align-items:flex-end">
+  <div style="flex:1">
+    <label for="q">Search by name, organization or interest</label>
+    <input type="text" id="q" name="q" value="{{ query }}">
+  </div>
+  <button class="btn">Search</button>
+</form>
+
+<div class="grid">
+  {% for person in people %}
+    <article class="person">
+      <h3><a href="{% url 'attendee_detail' event.slug person.pk %}">{{ person.full_name }}</a></h3>
+      <p class="meta">{{ person.job_title }}{% if person.organization %}, {{ person.organization }}{% endif %}</p>
+      {% if person.profile.headline %}<p>{{ person.profile.headline }}</p>{% endif %}
+      {% for i in person.profile.interest_list %}<span class="tag plain">{{ i }}</span> {% endfor %}
+    </article>
+  {% empty %}
+    <p class="empty">Nobody matches that search.</p>
+  {% endfor %}
+</div>
+{% endblock %}

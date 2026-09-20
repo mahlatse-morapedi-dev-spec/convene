@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Messages — {{ event.name }}{% endblock %}
+{% block content %}
+<div class="hero"><h1>Messages</h1></div>
+<div class="split">
+  <div>
+    <h2>Received</h2>
+    <ul class="thread" style="padding:0">
+      {% for m in received %}
+        <li>
+          <p class="who"><a href="{% url 'attendee_detail' event.slug m.sender.pk %}">{{ m.sender.full_name }}</a> · {{ m.sent_at|date:"j M, H:i" }}</p>
+          <p>{{ m.body|linebreaksbr }}</p>
+        </li>
+      {% empty %}<li><p class="meta">No messages yet.</p></li>{% endfor %}
+    </ul>
+  </div>
+  <aside>
+    <h2>Sent</h2>
+    <ul class="thread" style="padding:0">
+      {% for m in sent %}
+        <li>
+          <p class="who">To {{ m.recipient.full_name }} · {{ m.sent_at|date:"j M" }}</p>
+          <p>{{ m.body|truncatewords:25 }}</p>
+        </li>
+      {% empty %}<li><p class="meta">Nothing sent.</p></li>{% endfor %}
+    </ul>
+  </aside>
+</div>
+{% endblock %}

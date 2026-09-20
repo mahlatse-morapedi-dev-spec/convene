@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}{{ topic.title }} — {{ event.name }}{% endblock %}
+{% block content %}
+<div class="hero">
+  <p class="dateline">{{ topic.get_kind_display }}</p>
+  <h1>{{ topic.title }}</h1>
+  <p class="dateline">Started by {{ topic.created_by.full_name }}, {{ topic.created_at|date:"j M Y" }}</p>
+</div>
+
+<ul class="thread" style="padding:0">
+  {% for p in posts %}
+    <li>
+      <p class="who">{{ p.registration.full_name }} · {{ p.created_at|date:"j M, H:i" }}</p>
+      <p>{{ p.body|linebreaksbr }}</p>
+    </li>
+  {% endfor %}
+</ul>
+
+{% if registration and not topic.is_locked %}
+  <form method="post" action="{% url 'reply' event.slug topic.pk %}" class="panel" style="margin-top:1.5rem">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button class="btn">Post reply</button>
+  </form>
+{% elif topic.is_locked %}
+  <p class="empty">This thread is locked.</p>
+{% else %}
+  <p class="empty">Register for this event to join the conversation.</p>
+{% endif %}
+{% endblock %}

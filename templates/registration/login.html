@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Sign in — Convene{% endblock %}
+{% block content %}
+<div class="hero"><h1>Sign in</h1><p class="dateline">Use the account you registered with.</p></div>
+<form method="post" class="panel" style="max-width:26rem">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <input type="hidden" name="next" value="{{ next }}">
+  <button class="btn">Sign in</button>
+</form>
+{% endblock %}

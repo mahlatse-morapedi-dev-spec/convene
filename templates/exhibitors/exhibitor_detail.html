@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}{{ exhibitor.name }} — {{ event.name }}{% endblock %}
+{% block content %}
+<div class="hero">
+  <p class="dateline">{{ exhibitor.get_tier_display }}{% if exhibitor.booth_number %} · stand {{ exhibitor.booth_number }}{% endif %}</p>
+  <h1>{{ exhibitor.name }}</h1>
+</div>
+
+<div class="split">
+  <div>
+    <p>{{ exhibitor.description|linebreaksbr|default:exhibitor.blurb }}</p>
+    {% if exhibitor.website_url %}<p><a href="{{ exhibitor.website_url }}">{{ exhibitor.website_url }}</a></p>{% endif %}
+  </div>
+  <aside class="panel">
+    {% if viewer %}
+      {% if already_shared %}
+        <p class="meta">You've shared your details with this stand.</p>
+      {% else %}
+        <form method="post" action="{% url 'share_details' event.slug exhibitor.pk %}">
+          {% csrf_token %}
+          <p class="meta">Send your name, email and organization to this exhibitor.</p>
+          <button class="btn">Share my details</button>
+        </form>
+      {% endif %}
+    {% else %}
+      <p class="meta">Register for the event to share your details.</p>
+    {% endif %}
+
+    {% if is_staff or is_organizer %}
+      <hr style="border:0;border-top:1px solid var(--rule);margin:1rem 0">
+      <p><a class="btn ghost small" href="{% url 'lead_capture' event.slug exhibitor.pk %}">Capture leads ({{ exhibitor.lead_count }})</a></p>
+    {% endif %}
+  </aside>
+</div>
+{% endblock %}

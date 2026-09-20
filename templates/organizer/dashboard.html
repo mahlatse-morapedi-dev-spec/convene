@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Manage — {{ event.name }}{% endblock %}
+{% block content %}
+<div class="hero">
+  <h1>{{ event.name }}</h1>
+  <p class="dateline">Organizer view · {{ event.starts_on|date:"j M" }}–{{ event.ends_on|date:"j M Y" }}</p>
+  <a class="btn ghost" href="{% url 'check_in' event.slug %}">Check-in desk</a>
+  <a class="btn ghost" href="/admin/">Django admin</a>
+</div>
+
+<div class="stat-row">
+  <div class="stat"><span class="n">{{ registration_count }}</span><span class="k">registered</span></div>
+  <div class="stat"><span class="n">{{ checked_in_count }}</span><span class="k">checked in</span></div>
+  <div class="stat"><span class="n">{{ question_count }}</span><span class="k">questions asked</span></div>
+  <div class="stat"><span class="n">{{ post_count }}</span><span class="k">board posts</span></div>
+  <div class="stat"><span class="n">{{ lead_count }}</span><span class="k">exhibitor leads</span></div>
+</div>
+
+<div class="split">
+  <div>
+    <h2>Most saved sessions</h2>
+    <table>
+      <thead><tr><th>Session</th><th class="num">Saves</th><th class="num">Questions</th><th class="num">Rating</th></tr></thead>
+      <tbody>
+        {% for s in top_sessions %}
+          <tr>
+            <td><a href="{{ s.get_absolute_url }}">{{ s.title }}</a></td>
+            <td class="num">{{ s.saves }}</td>
+            <td class="num">{{ s.questions_asked }}</td>
+            <td class="num">{% if s.rating %}{{ s.rating|floatformat:1 }}{% else %}—{% endif %}</td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="4" class="meta">No sessions yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <aside>
+    <div class="panel">
+      <h2 style="font-size:1.15rem">Ticket sales</h2>
+      <table>
+        <tbody>
+        {% for t in ticket_types %}
+          <tr><td>{{ t.name }}</td><td class="num">{{ t.sold }}{% if t.quantity %} / {{ t.quantity }}{% endif %}</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="panel">
+      <h2 style="font-size:1.15rem">Latest registrations</h2>
+      {% for r in recent_registrations %}
+        <p class="meta" style="margin-bottom:.3rem">{{ r.full_name }} — {{ r.organization|default:"—" }}</p>
+      {% empty %}<p class="meta">None yet.</p>{% endfor %}
+    </div>
+  </aside>
+</div>
+{% endblock %}

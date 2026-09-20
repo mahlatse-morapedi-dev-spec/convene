@@ -1,0 +1,70 @@
+{% load static %}<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}Convene{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/convene.css' %}">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="masthead">
+  <div class="wrap bar">
+    <a class="wordmark" href="{% url 'event_list' %}">Convene</a>
+    <nav>
+      {% if user.is_authenticated %}
+        <span style="font-size:.9rem;opacity:.8">{{ user.get_username }}</span>
+        <form class="inline" method="post" action="{% url 'logout' %}">{% csrf_token %}
+          <button class="btn small ghost" style="color:#f6f8f5;border-color:#f6f8f5">Sign out</button>
+        </form>
+      {% else %}
+        <a href="{% url 'login' %}">Sign in</a>
+      {% endif %}
+    </nav>
+  </div>
+</header>
+
+{% if event %}
+<nav class="eventnav" aria-label="Event sections">
+  <div class="wrap">
+    {% with url_name=request.resolver_match.url_name %}
+    <ul>
+      <li><a href="{% url 'event_home' event.slug %}" {% if url_name == 'event_home' %}aria-current="page"{% endif %}>Overview</a></li>
+      <li><a href="{% url 'agenda' event.slug %}" {% if url_name == 'agenda' %}aria-current="page"{% endif %}>Agenda</a></li>
+      <li><a href="{% url 'speaker_list' event.slug %}" {% if url_name == 'speaker_list' %}aria-current="page"{% endif %}>Speakers</a></li>
+      <li><a href="{% url 'directory' event.slug %}" {% if url_name == 'directory' %}aria-current="page"{% endif %}>People</a></li>
+      <li><a href="{% url 'board' event.slug %}" {% if url_name == 'board' %}aria-current="page"{% endif %}>Community</a></li>
+      <li><a href="{% url 'exhibitor_list' event.slug %}" {% if url_name == 'exhibitor_list' %}aria-current="page"{% endif %}>Exhibitors</a></li>
+      {% if user.is_authenticated %}
+        <li><a href="{% url 'my_schedule' event.slug %}" {% if url_name == 'my_schedule' %}aria-current="page"{% endif %}>My schedule</a></li>
+        <li><a href="{% url 'inbox' event.slug %}" {% if url_name == 'inbox' %}aria-current="page"{% endif %}>Messages</a></li>
+      {% endif %}
+      {% if is_organizer %}
+        <li><a href="{% url 'organizer_dashboard' event.slug %}" {% if url_name == 'organizer_dashboard' %}aria-current="page"{% endif %}>Manage</a></li>
+        <li><a href="{% url 'check_in' event.slug %}" {% if url_name == 'check_in' %}aria-current="page"{% endif %}>Check-in</a></li>
+      {% endif %}
+    </ul>
+    {% endwith %}
+  </div>
+</nav>
+{% endif %}
+
+<main id="main">
+  <div class="wrap">
+    {% if messages %}
+      <ul class="messages">
+        {% for message in messages %}<li class="{{ message.tags }}">{{ message }}</li>{% endfor %}
+      </ul>
+    {% endif %}
+    {% block content %}{% endblock %}
+  </div>
+</main>
+
+<footer class="site">
+  <div class="wrap">Convene — event platform demo. {% now "Y" %}</div>
+</footer>
+</body>
+</html>

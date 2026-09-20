@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}{{ person.full_name }} — {{ event.name }}{% endblock %}
+{% block content %}
+<div class="hero">
+  <h1>{{ person.full_name }}</h1>
+  <p class="dateline">{{ person.job_title }}{% if person.organization %}, {{ person.organization }}{% endif %}</p>
+</div>
+
+<div class="split">
+  <div>
+    {% if person.profile.headline %}<p style="font-size:1.1rem">{{ person.profile.headline }}</p>{% endif %}
+    <p>{{ person.profile.bio|linebreaksbr }}</p>
+    {% if shared %}<p class="meta">You both listed: {{ shared|join:", " }}</p>{% endif %}
+
+    {% if viewer and viewer.pk != person.pk and person.profile.open_to_meetings %}
+      <h2>Send a message</h2>
+      <form method="post" action="{% url 'send_message' event.slug person.pk %}" class="panel">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button class="btn">Send message</button>
+      </form>
+    {% elif not viewer %}
+      <p class="empty">Register for this event to message attendees.</p>
+    {% endif %}
+  </div>
+
+  <aside class="panel">
+    <h2 style="font-size:1.15rem">Interests</h2>
+    {% for i in person.profile.interest_list %}<span class="tag plain">{{ i }}</span> {% empty %}<p class="meta">None listed.</p>{% endfor %}
+    {% if person.profile.linkedin_url %}<p style="margin-top:1rem"><a href="{{ person.profile.linkedin_url }}">LinkedIn</a></p>{% endif %}
+    {% if person.profile.website_url %}<p><a href="{{ person.profile.website_url }}">Website</a></p>{% endif %}
+  </aside>
+</div>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Register — {{ event.name }}{% endblock %}
+{% block content %}
+<div class="hero">
+  <h1>Register for {{ event.name }}</h1>
+  <p class="dateline">{{ event.starts_on|date:"j F" }}–{{ event.ends_on|date:"j F Y" }} · {{ event.venue }}</p>
+</div>
+
+<div class="split">
+  <form method="post" class="panel">
+    {% csrf_token %}
+    {% for field in form %}
+      <div class="field">
+        {{ field.label_tag }}
+        {{ field }}
+        {% if field.help_text %}<span class="helptext">{{ field.help_text }}</span>{% endif %}
+        {{ field.errors }}
+      </div>
+    {% endfor %}
+    {{ form.non_field_errors }}
+    <button class="btn">Complete registration</button>
+  </form>
+
+  <aside class="panel">
+    <h2 style="font-size:1.15rem">Tickets</h2>
+    {% for t in event.ticket_types.all %}
+      <p style="margin-bottom:.75rem">
+        <strong>{{ t.name }}</strong> — {{ t.currency }} {{ t.price }}<br>
+        <span class="meta">{{ t.description }}
+        {% if t.remaining is not None %}· {{ t.remaining }} left{% endif %}</span>
+      </p>
+    {% endfor %}
+  </aside>
+</div>
+{% endblock %}

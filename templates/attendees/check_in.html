@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Check-in — {{ event.name }}{% endblock %}
+{% block content %}
+<div class="hero">
+  <h1>Check-in desk</h1>
+  <p class="dateline">{{ checked_in }} of {{ total }} attendees have arrived.</p>
+</div>
+<form method="post" class="panel" style="max-width:28rem">
+  {% csrf_token %}
+  {% for field in form %}
+    <div class="field">{{ field.label_tag }}{{ field }}{{ field.errors }}</div>
+  {% endfor %}
+  <button class="btn">Check in</button>
+</form>
+
+{% if found %}
+<div class="panel">
+  <h2 style="font-size:1.15rem">{{ found.full_name }}</h2>
+  <p class="meta">{{ found.email }} · {{ found.ticket_type.name }} · badge {{ found.badge_code }}</p>
+  {% if found.is_checked_in %}<span class="tag">Arrived {{ found.checked_in_at|date:"j M H:i" }}</span>{% endif %}
+</div>
+{% endif %}
+{% endblock %}

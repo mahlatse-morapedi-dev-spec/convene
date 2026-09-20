@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}{{ event.name }}{% endblock %}
+{% block content %}
+<div class="hero">
+  <h1>{{ event.name }}</h1>
+  <p class="dateline">{{ event.starts_on|date:"j F" }}–{{ event.ends_on|date:"j F Y" }} · {{ event.venue }}{% if event.city %}, {{ event.city }}{% endif %} · {{ attendee_count }} registered</p>
+  {% if event.tagline %}<p style="font-size:1.1rem">{{ event.tagline }}</p>{% endif %}
+  {% if not registration %}
+    <a class="btn" href="{% url 'register' event.slug %}">Register</a>
+  {% else %}
+    <a class="btn ghost" href="{% url 'my_ticket' event.slug %}">Your ticket · {{ registration.badge_code }}</a>
+  {% endif %}
+</div>
+
+<div class="split">
+  <div>
+    {% if happening_now %}
+      <h2>On now</h2>
+      {% for s in happening_now %}
+        <div class="slot">
+          <div class="time">{{ s.starts_at|time:"H:i" }}</div>
+          <div>
+            <h3><a href="{{ s.get_absolute_url }}">{{ s.title }}</a></h3>
+            <p class="meta">{{ s.room }}{% if s.track %} · {{ s.track.name }}{% endif %}</p>
+          </div>
+          <span class="tag live">Live</span>
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    <h2 style="margin-top:2rem">Coming up</h2>
+    {% for s in up_next %}
+      <div class="slot">
+        <div class="time">{{ s.starts_at|date:"D H:i" }}</div>
+        <div>
+          <h3><a href="{{ s.get_absolute_url }}">{{ s.title }}</a></h3>
+          <p class="meta">{{ s.room }}{% if s.track %} · {{ s.track.name }}{% endif %}</p>
+        </div>
+        <span></span>
+      </div>
+    {% empty %}
+      <p class="empty">Nothing scheduled yet.</p>
+    {% endfor %}
+    <p style="margin-top:1rem"><a href="{% url 'agenda' event.slug %}">See the full agenda</a></p>
+  </div>
+
+  <aside>
+    {% if announcements %}
+    <div class="panel">
+      <h2 style="font-size:1.15rem">Announcements</h2>
+      {% for a in announcements %}
+        <div style="margin-bottom:1rem">
+          <strong>{{ a.title }}</strong>
+          <p class="meta">{{ a.created_at|date:"j M, H:i" }}</p>
+          <p>{{ a.body|linebreaksbr }}</p>
+        </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if sponsors %}
+    <div class="panel">
+      <h2 style="font-size:1.15rem">Sponsors</h2>
+      <ul style="list-style:none;padding:0;margin:0">
+        {% for s in sponsors %}
+          <li style="margin-bottom:.4rem"><a href="{{ s.get_absolute_url }}">{{ s.name }}</a> <span class="tag plain">{{ s.get_tier_display }}</span></li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+
+    <div class="panel">
+      <h2 style="font-size:1.15rem">About</h2>
+      <p>{{ event.description|linebreaksbr|default:"No description yet." }}</p>
+    </div>
+  </aside>
+</div>
+{% endblock %}
