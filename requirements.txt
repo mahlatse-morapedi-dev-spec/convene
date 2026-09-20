@@ -1,4 +1,5 @@
 Django>=5.0,<6.0
 qrcode[pil]>=7.4
 python-dateutil>=2.9
+whitenoise
 gunicorn>=23.0.0
